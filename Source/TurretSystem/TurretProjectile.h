@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "TurretProjectile.generated.h"
 
+class UProjectileMovementComponent;
+class UStaticMeshComponent;
 
 UCLASS()
 class TURRETSYSTEM_API ATurretProjectile : public AActor
@@ -16,6 +18,12 @@ public:
 	// Sets default values for this actor's properties
 	ATurretProjectile();
 
+	UPROPERTY(EditInstanceOnly)
+	UProjectileMovementComponent* ProjectileMovementComponent = nullptr;
+
+	UPROPERTY(EditInstanceOnly)
+	UStaticMeshComponent* ProjectileMesh = nullptr;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
