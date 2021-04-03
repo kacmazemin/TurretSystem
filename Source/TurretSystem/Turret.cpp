@@ -50,7 +50,7 @@ void ATurret::FindTarget()
 				ClosestTarget = HitResult;
 			}
 
-			if(GetDistanceTo(HitResult) < GetDistanceTo(BestTarget))
+			if(GetDistanceTo(HitResult) < GetDistanceTo(ClosestTarget))
 			{
 				ClosestTarget = HitResult;
 			}	
