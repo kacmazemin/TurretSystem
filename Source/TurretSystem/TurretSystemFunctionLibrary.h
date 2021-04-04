@@ -10,14 +10,14 @@
  * 
  */
 UCLASS()
-class TURRETSYSTEM_API UTurretSystemFunctionLibrary : public UBlueprintFunctionLibraryFactory
+class TURRETSYSTEM_API UTurretSystemFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
 	
-	UFUNCTION(BlueprintCallable)
-    static bool HasLineOfSight(const UObject* WorldContextObject, FHitResult& Hit,
-                               const FVector& From, const FVector& To, const TArray<AActor*>& ActorsToIgnore);
+	UFUNCTION(BlueprintCallable, Category = "TurretSystem" )
+	static bool HasLineOfSight(const UObject* WorldContextObject, FHitResult& Hit, const FVector& From,
+                                                  const FVector& To, const TArray<AActor*>& ActorsToIgnore);
 
 };
