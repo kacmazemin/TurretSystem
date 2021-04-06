@@ -29,13 +29,8 @@ public:
 	void FindTarget();
 
 	UPROPERTY(EditInstanceOnly, meta = (ClampMin = "1.0", ClampMax = "1000.0", UIMin = "1.0", UIMax = "1000.0"))
-	float SenseRange = 100.f;
+	float SenseRange = 1000.f;
 
-	UPROPERTY(VisibleInstanceOnly)
-	TArray<AActor*> ActorsToIgnore;
-
-	UPROPERTY(VisibleInstanceOnly)
-	TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,7 +41,18 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	UPROPERTY()
+	TArray<AActor*> ActorsToIgnore;
 	
 	UPROPERTY()
-	AActor* ClosestTarget = nullptr;	
+	TArray<AActor*> ActorIgnoreSphereOverlap;
+
+	UPROPERTY()
+	TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
+	
+	UPROPERTY()
+	AActor* BestTarget = nullptr;
+
+
+	FHitResult SightHitResult;
 };

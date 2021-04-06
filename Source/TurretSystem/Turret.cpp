@@ -4,6 +4,7 @@
 #include "Turret.h"
 
 #include "DrawDebugHelpers.h"
+#include "TurretSystemFunctionLibrary.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -19,6 +20,9 @@ ATurret::ATurret()
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("BoxCollision");
 	SphereComponent->SetupAttachment(TurretSM);
+
+	ActorsToIgnore.Reserve(2);
+	ActorsToIgnore.Add(this);
 }
 
 // Called when the game starts or when spawned
@@ -38,27 +42,28 @@ void ATurret::FindTarget()
 
 	const bool IsOverlapped = UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(),
 																		SenseRange, TraceObjectTypes, nullptr,
-																		ActorsToIgnore, OverlappingActors);
+																		ActorIgnoreSphereOverlap, OverlappingActors);
+	float BestDistance = SenseRange;
+
+	AActor* ClosestTarget = nullptr;
 
 	if(IsOverlapped)
 	{	
 		for (AActor*& HitResult : OverlappingActors)
 		{
+			ActorsToIgnore[1] = HitResult;
 
-			if(!ClosestTarget)
+			if(GetDistanceTo(HitResult) < BestDistance || !ClosestTarget)
 			{
-				ClosestTarget = HitResult;
+				if(UTurretSystemFunctionLibrary::HasLineOfSight(this, SightHitResult, GetActorLocation(), HitResult->GetActorLocation(), ActorsToIgnore))
+				{
+					ClosestTarget = HitResult;
+					BestDistance = GetDistanceTo(ClosestTarget);
+				}
 			}
-
-			if(GetDistanceTo(HitResult) < GetDistanceTo(ClosestTarget))
-			{
-				ClosestTarget = HitResult;
-			}	
 		}
-	}
-	else
-	{
-		ClosestTarget = nullptr;
+
+		BestTarget = ClosestTarget;
 	}
 
 }
@@ -68,9 +73,9 @@ void ATurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	if(ClosestTarget)
+	if(BestTarget)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, ClosestTarget->GetName());
+		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, BestTarget->GetName());
 	}
 }
 
