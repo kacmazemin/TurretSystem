@@ -32,12 +32,15 @@ void ATurret::BeginPlay()
 	
 	TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), SenseRange, 8, FColor::Blue, true, -1.0f, SDPG_World);
-
 }
 
 void ATurret::FindTarget()
 {
+	if(EnableSphere)
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), SenseRange, 8, FColor::Blue, false, -1.0f, SDPG_World);		
+	}
+
 	TArray<AActor*> OverlappingActors;
 
 	const bool IsOverlapped = UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(),

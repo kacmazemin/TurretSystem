@@ -28,9 +28,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FindTarget();
 
-	UPROPERTY(EditInstanceOnly, meta = (ClampMin = "1.0", ClampMax = "1000.0", UIMin = "1.0", UIMax = "1000.0"))
+	UPROPERTY(EditInstanceOnly, Category = "TurretConfig", meta = (ClampMin = "1.0", ClampMax = "2000.0", UIMin = "1.0", UIMax = "2000.0"))
 	float SenseRange = 1000.f;
 
+	UPROPERTY(EditInstanceOnly, Category = "TurretConfig")
+	bool EnableSphere = false;
 
 protected:
 	// Called when the game starts or when spawned
