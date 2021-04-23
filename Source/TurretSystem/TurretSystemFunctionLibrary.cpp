@@ -10,8 +10,6 @@ bool UTurretSystemFunctionLibrary::HasLineOfSight(const UObject* WorldContextObj
 {
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActors(ActorsToIgnore);
-
-	DrawDebugLine(WorldContextObject->GetWorld(),From,To, FColor::Black,false, 1.f);
 	
 	return !WorldContextObject->GetWorld()->LineTraceSingleByChannel(Hit, From, To, ECC_Visibility, QueryParams);
 }
