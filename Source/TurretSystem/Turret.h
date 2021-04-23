@@ -9,6 +9,7 @@
 
 class UStaticMeshComponent;
 class USphereComponent;
+class UTimelineComponent;
 
 UCLASS()
 class TURRETSYSTEM_API ATurret : public AActor
@@ -34,6 +35,10 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "TurretConfig")
 	bool EnableSphere = false;
 
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* CurveFloat = nullptr;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -55,6 +60,18 @@ private:
 	UPROPERTY()
 	AActor* BestTarget = nullptr;
 
+	UPROPERTY()
+	UTimelineComponent* TimelineComponent = nullptr;
+
+	bool bIsReverse = false;
+	
+	void RotateToTarget();
+
+	UFUNCTION()
+	void IdleRotation(const float Value);
+
+	UFUNCTION()
+	void IdleFinish();
 
 	FHitResult SightHitResult;
 };

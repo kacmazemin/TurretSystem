@@ -5,8 +5,9 @@
 
 #include "DrawDebugHelpers.h"
 #include "TurretSystemFunctionLibrary.h"
-#include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/TimelineComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
@@ -32,6 +33,24 @@ void ATurret::BeginPlay()
 	
 	TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
 
+	
+	FOnTimelineFloat TimelineCallback;
+	FOnTimelineEventStatic TimelineFinishedCallback;
+	
+	TimelineComponent = NewObject<UTimelineComponent>(this, FName("IdleAnimTimeline"));
+	TimelineComponent->CreationMethod = EComponentCreationMethod::UserConstructionScript; // Indicate it comes from a blueprint so it gets cleared when we rerun construction scripts
+	this->BlueprintCreatedComponents.Add(TimelineComponent); // Add to array so it gets saved
+	TimelineComponent->SetNetAddressable();
+
+	TimelineCallback.BindUFunction(this, FName("IdleRotation"));
+	TimelineFinishedCallback.BindUFunction(this, FName("IdleFinish"));
+	
+	TimelineComponent->AddInterpFloat(CurveFloat, TimelineCallback);
+	TimelineComponent->SetTimelineFinishedFunc(TimelineFinishedCallback);
+	
+	// TimelineComponent->SetLooping(true);
+	TimelineComponent->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
+	TimelineComponent->RegisterComponent();
 }
 
 void ATurret::FindTarget()
@@ -78,7 +97,56 @@ void ATurret::Tick(float DeltaTime)
 	
 	if(BestTarget)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Cyan, BestTarget->GetName());
+		RotateToTarget();
+		if(TimelineComponent && TimelineComponent->IsPlaying())
+		{
+			TimelineComponent->Stop();			
+		}
+	}
+	else
+	{
+		if(TimelineComponent && !TimelineComponent->IsPlaying())
+		{
+			TimelineComponent->Play();
+			bIsReverse = false;
+		}
 	}
 }
 
+void ATurret::RotateToTarget()
+{
+	if(BestTarget && TurretSM)
+	{
+		const FRotator DesiredRotation = UKismetMathLibrary::FindLookAtRotation(TurretSM->GetRelativeLocation(),BestTarget->GetActorLocation());
+		TurretSM->SetRelativeRotation({TurretSM->GetRelativeRotation().Pitch, DesiredRotation.Yaw, TurretSM->GetRelativeRotation().Roll});
+	}
+}
+
+void ATurret::IdleRotation(const float Value)
+{
+	if(!BestTarget)
+	{
+		TurretSM->SetRelativeRotation({TurretSM->GetRelativeRotation().Pitch, Value, TurretSM->GetRelativeRotation().Roll});
+	}
+}
+
+void ATurret::IdleFinish()
+{
+	if(TimelineComponent)
+	{
+		if(!TimelineComponent->IsPlaying())
+		{
+			if(bIsReverse)
+			{
+				bIsReverse = false;
+
+				TimelineComponent->Play();
+			}
+			else
+			{
+				bIsReverse = true;
+				TimelineComponent->Reverse();
+			}
+		}
+	}
+}
