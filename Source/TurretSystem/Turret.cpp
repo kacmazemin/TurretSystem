@@ -5,10 +5,13 @@
 
 #include "DrawDebugHelpers.h"
 #include "TurretSystemFunctionLibrary.h"
+#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Sound/SoundCue.h"
 
 // Sets default values
 ATurret::ATurret()
@@ -22,6 +25,10 @@ ATurret::ATurret()
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("BoxCollision");
 	SphereComponent->SetupAttachment(TurretSM);
 
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>("AudioComponent");
+	AudioComponent->SetupAttachment(TurretSM);
+	AudioComponent->bAlwaysPlay = true;
+	
 	ActorsToIgnore.Reserve(2);
 	ActorsToIgnore.Add(this);
 }
@@ -51,6 +58,11 @@ void ATurret::BeginPlay()
 	// TimelineComponent->SetLooping(true);
 	TimelineComponent->SetTimelineLengthMode(ETimelineLengthMode::TL_LastKeyFrame);
 	TimelineComponent->RegisterComponent();
+
+	if(RotationSoundCue)
+	{
+		AudioComponent->SetSound(RotationSoundCue);		
+	}
 }
 
 void ATurret::FindTarget()
@@ -109,6 +121,8 @@ void ATurret::Tick(float DeltaTime)
 		{
 			TimelineComponent->Play();
 			bIsReverse = false;
+			GEngine->AddOnScreenDebugMessage(-1,1,FColor::Black,"WORKWORKWORK");
+			playRotateSound();
 		}
 	}
 }
@@ -139,14 +153,24 @@ void ATurret::IdleFinish()
 			if(bIsReverse)
 			{
 				bIsReverse = false;
-
 				TimelineComponent->Play();
+				playRotateSound();
 			}
 			else
 			{
 				bIsReverse = true;
 				TimelineComponent->Reverse();
+				playRotateSound();
 			}
 		}
+	}
+}
+
+void ATurret::playRotateSound()
+{
+	if(RotationSoundCue)
+	{
+		AudioComponent->Stop();
+		AudioComponent->Play();
 	}
 }

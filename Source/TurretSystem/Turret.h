@@ -35,9 +35,14 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "TurretConfig")
 	bool EnableSphere = false;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "TurretConfig")
 	UCurveFloat* CurveFloat = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "TurretConfig")
+	USoundBase* RotationSoundCue = nullptr;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "TurretConfig")
+	UAudioComponent* AudioComponent = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
@@ -63,6 +68,8 @@ private:
 	UPROPERTY()
 	UTimelineComponent* TimelineComponent = nullptr;
 
+	FTimerHandle TimerHandle;
+
 	bool bIsReverse = false;
 	
 	void RotateToTarget();
@@ -72,6 +79,10 @@ private:
 
 	UFUNCTION()
 	void IdleFinish();
+
+	void playRotateSound();
+
+	void rotateInterpolation(const float dt, std::function<void()>& Callback);
 
 	FHitResult SightHitResult;
 };
