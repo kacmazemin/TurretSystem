@@ -40,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "TurretConfig")
 	UAudioComponent* AudioComponent = nullptr;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "TurretConfig")
 	float InterpolationSpeed = 10.f;
 	
 protected:
