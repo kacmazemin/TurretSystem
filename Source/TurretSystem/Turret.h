@@ -35,16 +35,13 @@ public:
 	bool EnableSphere = false;
 
 	UPROPERTY(EditAnywhere, Category = "TurretConfig")
-	UCurveFloat* CurveFloat = nullptr;
-
-	UPROPERTY(EditAnywhere, Category = "TurretConfig")
 	USoundBase* RotationSoundCue = nullptr;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "TurretConfig")
 	UAudioComponent* AudioComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	float InterpolationSpeed = 0;
+	float InterpolationSpeed = 10.f;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -55,8 +52,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	bool bIsInIdleState = false;
 	bool bIsInDelayTime = false;
+	bool bIsRotating = false;
 
 	float RandValue = 0.f;
 	
@@ -74,14 +71,12 @@ private:
 
 	FTimerHandle TimerHandle;
 
-	bool bIsRotating = false;
-	
 	void RotateToTarget();
 
 	void PlayRotateSound();
 
 	void IdleRotate(const float DeltaSecond);
-	
+
 	float RotateValue = 0;
 
 	FHitResult SightHitResult;
