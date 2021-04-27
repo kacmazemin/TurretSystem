@@ -9,7 +9,6 @@
 
 class UStaticMeshComponent;
 class USphereComponent;
-class UTimelineComponent;
 
 UCLASS()
 class TURRETSYSTEM_API ATurret : public AActor
@@ -44,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly, Category = "TurretConfig")
 	UAudioComponent* AudioComponent = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	float InterpolationSpeed = 0;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -53,6 +55,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	bool bIsInIdleState = false;
+	bool bIsInDelayTime = false;
+
+	float RandValue = 0.f;
+	
 	UPROPERTY()
 	TArray<AActor*> ActorsToIgnore;
 	
@@ -65,24 +72,17 @@ private:
 	UPROPERTY()
 	AActor* BestTarget = nullptr;
 
-	UPROPERTY()
-	UTimelineComponent* TimelineComponent = nullptr;
-
 	FTimerHandle TimerHandle;
 
-	bool bIsReverse = false;
+	bool bIsRotating = false;
 	
 	void RotateToTarget();
 
-	UFUNCTION()
-	void IdleRotation(const float Value);
+	void PlayRotateSound();
 
-	UFUNCTION()
-	void IdleFinish();
-
-	void playRotateSound();
-
-	void rotateInterpolation(const float dt, std::function<void()>& Callback);
+	void IdleRotate(const float DeltaSecond);
+	
+	float RotateValue = 0;
 
 	FHitResult SightHitResult;
 };
