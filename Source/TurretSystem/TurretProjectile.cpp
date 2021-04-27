@@ -2,6 +2,7 @@
 
 
 #include "TurretProjectile.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
@@ -14,6 +15,9 @@ ATurretProjectile::ATurretProjectile()
 	ProjectileMesh->SetupAttachment(RootComponent);
 	ProjectileMesh->SetRelativeRotation(FRotator(0,0,90));
 
+	BoxCollision = CreateDefaultSubobject<UBoxComponent>("BoxCollision");
+	BoxCollision->SetupAttachment(ProjectileMesh);
+	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 
 	ProjectileMovementComponent->Velocity = {0,0,5000};
@@ -21,11 +25,19 @@ ATurretProjectile::ATurretProjectile()
 	
 }
 
+void ATurretProjectile::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	
+	BoxCollision->SetRelativeRotation(FRotator(0,0,90));
+	BoxCollision->SetBoxExtent(ProjectileMesh->Bounds.BoxExtent);
+	BoxCollision->SetRelativeLocation(FVector{0,0,ProjectileMesh->Bounds.BoxExtent.Y});
+}
+
 // Called when the game starts or when spawned
 void ATurretProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

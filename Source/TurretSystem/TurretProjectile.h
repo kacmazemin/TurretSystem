@@ -8,6 +8,7 @@
 
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
+class UBoxComponent;
 
 UCLASS()
 class TURRETSYSTEM_API ATurretProjectile : public AActor
@@ -17,12 +18,17 @@ class TURRETSYSTEM_API ATurretProjectile : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATurretProjectile();
+	
+	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UPROPERTY(EditInstanceOnly)
 	UProjectileMovementComponent* ProjectileMovementComponent = nullptr;
 
 	UPROPERTY(EditInstanceOnly)
 	UStaticMeshComponent* ProjectileMesh = nullptr;
+
+	UPROPERTY(EditInstanceOnly)
+	UBoxComponent* BoxCollision = nullptr;
 	
 protected:
 	// Called when the game starts or when spawned
