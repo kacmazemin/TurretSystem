@@ -12,11 +12,14 @@ ATurretProjectile::ATurretProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>("ProjectileMesh");
-	ProjectileMesh->SetupAttachment(RootComponent);
-	ProjectileMesh->SetRelativeRotation(FRotator(0,0,90));
+	SetRootComponent(ProjectileMesh);
+
+	ProjectileMesh->SetRelativeRotation(FRotator(0.f,-90.f,90.f));
+	ProjectileMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>("BoxCollision");
 	BoxCollision->SetupAttachment(ProjectileMesh);
+	BoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovementComponent");
 
@@ -29,7 +32,7 @@ void ATurretProjectile::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 	
-	BoxCollision->SetRelativeRotation(FRotator(0,0,90));
+	BoxCollision->SetRelativeRotation(ProjectileMesh->GetRelativeRotation());
 	BoxCollision->SetBoxExtent(ProjectileMesh->Bounds.BoxExtent);
 	BoxCollision->SetRelativeLocation(FVector{0,0,ProjectileMesh->Bounds.BoxExtent.Y});
 }
@@ -38,6 +41,8 @@ void ATurretProjectile::OnConstruction(const FTransform& Transform)
 void ATurretProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetLifeSpan(2.f);
 }
 
 // Called every frame
