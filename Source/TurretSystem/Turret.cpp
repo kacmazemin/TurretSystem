@@ -4,7 +4,9 @@
 #include "Turret.h"
 
 #include "DrawDebugHelpers.h"
+#include "TurretProjectile.h"
 #include "TurretSystemFunctionLibrary.h"
+#include "Components/ArrowComponent.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -19,7 +21,8 @@ ATurret::ATurret()
 	PrimaryActorTick.bCanEverTick = true;
 
 	TurretSM = CreateDefaultSubobject<UStaticMeshComponent>("TurretStaticMesh");
-	TurretSM->SetupAttachment(RootComponent);
+	SetRootComponent(RootComponent);
+	TurretSM->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("BoxCollision");
 	SphereComponent->SetupAttachment(TurretSM);
@@ -27,8 +30,12 @@ ATurret::ATurret()
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>("AudioComponent");
 	AudioComponent->SetupAttachment(TurretSM);
 	AudioComponent->bAlwaysPlay = true;
+
+	ArrowComponent = CreateDefaultSubobject<UArrowComponent>("ArrowComponent");
+	ArrowComponent->SetupAttachment(TurretSM);
+	ArrowComponent->SetRelativeLocation({60.f,0.f,130.f});
 	
-	ActorsToIgnore.Reserve(2);
+	ActorsToIgnore.Reserve(3);
 	ActorsToIgnore.Add(this);
 }
 
@@ -43,6 +50,8 @@ void ATurret::BeginPlay()
 	{
 		AudioComponent->SetSound(RotationSoundCue);		
 	}
+	ActorsToIgnore.Add(ProjectileActor.GetDefaultObject());
+
 }
 
 void ATurret::FindTarget()
@@ -65,7 +74,7 @@ void ATurret::FindTarget()
 	{	
 		for (AActor*& HitResult : OverlappingActors)
 		{
-			ActorsToIgnore[1] = HitResult;
+			ActorsToIgnore[2] = HitResult;
 
 			if(GetDistanceTo(HitResult) < BestDistance || !ClosestTarget)
 			{
@@ -90,6 +99,8 @@ void ATurret::Tick(float DeltaTime)
 	if(BestTarget)
 	{
 		RotateToTarget();
+
+		FireProjectile();
 	}
 	else
 	{
@@ -144,6 +155,18 @@ void ATurret::IdleRotate(const float DeltaSecond)
 				bIsRotating = false;
 			},1.f,false,FMath::RandRange(1.1f, 1.6f));
 		}
+	}
+}
+
+void ATurret::FireProjectile()
+{
+	if(!GetWorld()->GetTimerManager().IsTimerActive(FireTimerHadle))
+	{
+		GetWorld()->GetTimerManager().SetTimer(FireTimerHadle,[=]()
+		{
+			ATurretProjectile* TurretProjectile = GetWorld()->SpawnActor<ATurretProjectile>(ProjectileActor.Get(),
+                ArrowComponent->GetComponentLocation(), {0,TurretSM->GetRelativeRotation().Yaw, 0});
+		},1.f, false, FireRate);
 	}
 
 }
