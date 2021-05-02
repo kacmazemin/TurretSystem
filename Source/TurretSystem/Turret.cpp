@@ -27,9 +27,13 @@ ATurret::ATurret()
 	SphereComponent = CreateDefaultSubobject<USphereComponent>("BoxCollision");
 	SphereComponent->SetupAttachment(TurretSM);
 
-	AudioComponent = CreateDefaultSubobject<UAudioComponent>("AudioComponent");
-	AudioComponent->SetupAttachment(TurretSM);
-	AudioComponent->bAlwaysPlay = true;
+	RotationAC = CreateDefaultSubobject<UAudioComponent>("RotationAudioComponent");
+	RotationAC->SetupAttachment(TurretSM);
+	RotationAC->bAlwaysPlay = true;
+
+	FireAC = CreateDefaultSubobject<UAudioComponent>("FireAudioComponent");
+	FireAC->SetupAttachment(TurretSM);
+	FireAC->bAlwaysPlay = true;
 
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>("ArrowComponent");
 	ArrowComponent->SetupAttachment(TurretSM);
@@ -48,8 +52,14 @@ void ATurret::BeginPlay()
 
 	if(RotationSoundCue)
 	{
-		AudioComponent->SetSound(RotationSoundCue);		
+		RotationAC->SetSound(RotationSoundCue);		
 	}
+
+	if(FireSoundEffect)
+	{
+		FireAC->SetSound(FireSoundEffect);
+	}
+	
 	ActorsToIgnore.Add(ProjectileActor.GetDefaultObject());
 
 }
@@ -121,8 +131,17 @@ void ATurret::PlayRotateSound()
 {
 	if(RotationSoundCue)
 	{
-		AudioComponent->Stop();
-		AudioComponent->Play();
+		RotationAC->Stop();
+		RotationAC->Play();
+	}
+}
+
+void ATurret::PlayFireSound()
+{
+	if(FireAC)
+	{
+		FireAC->Stop();
+		FireAC->Play();
 	}
 }
 
@@ -160,12 +179,15 @@ void ATurret::IdleRotate(const float DeltaSecond)
 
 void ATurret::FireProjectile()
 {
-	if(!GetWorld()->GetTimerManager().IsTimerActive(FireTimerHadle))
+	if(!GetWorld()->GetTimerManager().IsTimerActive(FireTimerHandle))
 	{
-		GetWorld()->GetTimerManager().SetTimer(FireTimerHadle,[=]()
+		GetWorld()->GetTimerManager().SetTimer(FireTimerHandle,[=]()
 		{
 			ATurretProjectile* TurretProjectile = GetWorld()->SpawnActor<ATurretProjectile>(ProjectileActor.Get(),
                 ArrowComponent->GetComponentLocation(), {0,TurretSM->GetRelativeRotation().Yaw, 0});
+
+			PlayFireSound();
+			
 		},1.f, false, FireRate);
 	}
 

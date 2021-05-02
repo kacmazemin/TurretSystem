@@ -11,6 +11,7 @@ class UStaticMeshComponent;
 class USphereComponent;
 class UArrowComponent;
 class ATurretProjectile;
+class USoundWave;
 
 UCLASS()
 class TURRETSYSTEM_API ATurret : public AActor
@@ -41,9 +42,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "TurretConfig")
 	USoundBase* RotationSoundCue = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "TurretConfig")
-	UAudioComponent* AudioComponent = nullptr;
 	
 	UPROPERTY(EditAnywhere, Category = "TurretConfig")
 	float InterpolationSpeed = 10.f;
@@ -53,6 +51,9 @@ public:
 
 	UPROPERTY(EditInstanceOnly, Category = "FireConfig")
 	TSubclassOf<ATurretProjectile> ProjectileActor = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "FireConfig")
+	USoundWave* FireSoundEffect = nullptr;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -80,12 +81,19 @@ private:
 	UPROPERTY()
 	AActor* BestTarget = nullptr;
 
+	UPROPERTY()
+	UAudioComponent* RotationAC = nullptr;
+	
+	UPROPERTY()
+	UAudioComponent* FireAC = nullptr;
+
 	FTimerHandle TimerHandle;
-	FTimerHandle FireTimerHadle;
+	FTimerHandle FireTimerHandle;
 
 	void RotateToTarget();
 
 	void PlayRotateSound();
+	void PlayFireSound();
 
 	void IdleRotate(const float DeltaSecond);
 	void FireProjectile();
