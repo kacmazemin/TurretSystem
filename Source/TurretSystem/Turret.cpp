@@ -114,6 +114,10 @@ void ATurret::Tick(float DeltaTime)
 	}
 	else
 	{
+		if(GetWorld()->GetTimerManager().IsTimerActive(FireTimerHandle))
+		{
+			GetWorld()->GetTimerManager().ClearTimer(FireTimerHandle);
+		}
 		IdleRotate(DeltaTime);
 	}
 }
@@ -190,5 +194,4 @@ void ATurret::FireProjectile()
 			
 		},1.f, false, FireRate);
 	}
-
 }

@@ -22,13 +22,13 @@ public:
 	// Sets default values for this actor's properties
 	ATurret();
 
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* TurretSM = nullptr;
 
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditDefaultsOnly)
 	USphereComponent* SphereComponent = nullptr;
 
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditDefaultsOnly)
 	UArrowComponent* ArrowComponent = nullptr;
 
 	UFUNCTION(BlueprintCallable)
