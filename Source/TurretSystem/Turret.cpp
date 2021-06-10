@@ -86,7 +86,7 @@ void ATurret::FindTarget()
 		{
 			ActorsToIgnore[2] = HitResult;
 
-			if(GetDistanceTo(HitResult) < BestDistance || !ClosestTarget)
+			if(!ClosestTarget || GetDistanceTo(HitResult) < BestDistance)
 			{
 				if(UTurretSystemFunctionLibrary::HasLineOfSight(this, SightHitResult, GetActorLocation(), HitResult->GetActorLocation(), ActorsToIgnore))
 				{
@@ -97,6 +97,10 @@ void ATurret::FindTarget()
 		}
 
 		BestTarget = ClosestTarget;
+	}
+	else
+	{
+		BestTarget = nullptr;
 	}
 
 }
